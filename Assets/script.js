@@ -23,19 +23,47 @@ $(document).ready(function () {
 
     const weatherQueryURL = "http://api.openweathermap.org/data/2.5/weather?q="
     const apiKey = "&units=imperial&APPID=59ddb5cc3f1fd3b75882fc3eb283fbeb"
+    let recentCities = [];
+
+    function loadCity() {
 
 
-    
+         var getCity = JSON.parse(localStorage.getItem("cities"))
+         if (getCity != null){ 
+            recentCities = getCity
+         }
+        console.log("static");
+        $(".list-group").empty();
+        let city = $("#citySearch").val();
+        if (recentCities != null)  {
+            console.log(recentCities);
+            for (var i = 0; i < recentCities.length; i++) {
 
-    $("#searchBtn").on("click", function(event) {
+                var newLi = $("<li class='list-group-item'>");
+                newLi.text(recentCities[i]);
+                $(".list-group").append(newLi);
+            }
+        }
+      
+    }
+
+
+    $("#searchBtn").on("click", function (event) {
         event.preventDefault();
         let city = $("#citySearch").val();
         console.log(city);
+      
+        if(city.length > 0){
+            recentCities.push(city);
+            localStorage.setItem("cities", JSON.stringify(recentCities));
+            loadCity()
+        }
+        
         $.ajax({
             url: weatherQueryURL + city + ",us" + apiKey,
             method: "GET"
         }).then(function (callback) {
-
+            $("#currentDay").empty();
             let weatherIconCode = callback.weather[0].icon;
             const iconURL = "http://openweathermap.org/img/w/" + weatherIconCode + ".png";
             console.log(callback)
@@ -86,20 +114,29 @@ $(document).ready(function () {
                     url: forecastQueryURL + city + ",us" + apiKey,
                     method: "GET"
                 }).then(function (callback) {
-                    //for (let i = 0; i < 40 ; i + 8){}
-                    console.log(callback);
-                    let futureDate = moment(callback.list[0].dt, "X").format("M/DD/YY");
-                    console.log(futureDate);
-                    let pElement = $("<p>");
-                    pElement.append(futureDate);
-                    let weatherIconCode = callback.list[0].weather[0].icon; const iconURL = "http://openweathermap.org/img/w/" + weatherIconCode + ".png";
-                    let iconIMG = $("<img>");
-                    iconIMG.attr("src", iconURL);
-                    let tempPElement = $("<p>");
-                    let humidPElement = $("<p>");
-                    tempPElement.text("Temp: " + callback.list[0].main.temp + "°F");
-                    humidPElement.text("Hum: " + callback.list[0].main.humidity + "%");
-                    $("#futureCast").append(pElement, iconIMG, tempPElement, humidPElement);
+                    $("#futureCast").empty();
+                    for (let i = 0; i < 40; i += 8) {
+                        var col = $("<div class = 'col-sm-2'>");
+                        var cardBody = $("<div class = 'card-body'>");
+                        var card = $("<div class = 'card'>");
+                        console.log(callback);
+                        let futureDate = moment(callback.list[i].dt, "X").format("M/DD/YY");
+                        console.log(futureDate);
+                        let pElement = $("<p>");
+                        pElement.append(futureDate);
+                        let weatherIconCode = callback.list[i].weather[0].icon;
+                        const iconURL = "http://openweathermap.org/img/w/" + weatherIconCode + ".png";
+                        let iconIMG = $("<img>");
+                        iconIMG.attr("src", iconURL);
+                        let tempPElement = $("<p>");
+                        let humidPElement = $("<p>");
+                        tempPElement.text("Temp: " + callback.list[i].main.temp + "°F");
+                        humidPElement.text("Hum: " + callback.list[i].main.humidity + "%");
+                        cardBody.append(pElement, iconIMG, tempPElement, humidPElement);
+                        card.append(cardBody);
+                        col.append(card);
+                        $("#futureCast").append(col);
+                    }
                 })
 
             });
@@ -113,4 +150,7 @@ $(document).ready(function () {
 
 
     });
+    loadCity()
 });
+
+
