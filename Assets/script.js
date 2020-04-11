@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    const weatherQueryURL = "http://api.openweathermap.org/data/2.5/weather?q="
+    const weatherQueryURL = "https://api.openweathermap.org/data/2.5/weather?q="
     const apiKey = "&units=imperial&APPID=59ddb5cc3f1fd3b75882fc3eb283fbeb"
     let recentCities = [];
 //loads cities from previous searches 
@@ -44,7 +44,7 @@ function weatherSearch(search){
     }).then(function (callback) {
         $("#currentDay").empty();
         let weatherIconCode = callback.weather[0].icon;
-        const iconURL = "http://openweathermap.org/img/w/" + weatherIconCode + ".png";
+        const iconURL = "https://openweathermap.org/img/w/" + weatherIconCode + ".png";
         console.log(callback);
         let h2element = $("<h2>");
         let currentDate = moment(callback.dt, "X").format("M/D/YYYY");
@@ -59,7 +59,7 @@ function weatherSearch(search){
         pWind.text("Wind Speed: " + callback.wind.speed + "MPH");
         $("#currentDay").append(h2element, pTemp, pHumidity, pWind);
 
-        const UVIqueryURL = "http://api.openweathermap.org/data/2.5/uvi?"
+        const UVIqueryURL = "https://api.openweathermap.org/data/2.5/uvi?"
         let coordinates = "&lat=" + callback.coord.lat + "&lon=" + callback.coord.lon;
 //another ajax call for UV Index
         $.ajax({
@@ -87,7 +87,7 @@ function weatherSearch(search){
             pUVI.text("UVI: " + UVIndex);
             $("#currentDay").append(pUVI);
 //another ajax call for 5 day forecast
-            const forecastQueryURL = "http://api.openweathermap.org/data/2.5/forecast?q="
+            const forecastQueryURL = "https://api.openweathermap.org/data/2.5/forecast?q="
 
             $.ajax({
                 url: forecastQueryURL + city + ",us" + apiKey,
